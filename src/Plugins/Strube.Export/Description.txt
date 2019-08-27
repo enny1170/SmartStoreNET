@@ -1,0 +1,9 @@
+﻿FriendlyName: Order Export Plugin
+SystemName: Strube.Export
+Group: Developer
+Version: 3.2.2
+MinAppVersion: 3.2.2
+Author: Strube DuS GmbH
+DisplayOrder: 1
+FileName: Strube.Export.dll
+ResourceRootKey: Plugins.Strube.Export
