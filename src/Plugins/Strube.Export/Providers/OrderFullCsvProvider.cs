@@ -16,9 +16,13 @@ using SmartStore.Services.Directory;
 using SmartStore.Services.Localization;
 using System.IO;
 using SmartStore.Core.Domain.Orders;
+using Strube.Export.Models;
 
 namespace Strube.Export.Providers
 {
+    /// <summary>
+    /// Provider for Export Order Infos without Prices as CSV File
+    /// </summary>
     [SystemName("Strube.OrdersExportCSV")]
     [FriendlyName("Strube Full Order csv-Export")]
     [DisplayOrder(1)]
@@ -30,8 +34,9 @@ namespace Strube.Export.Providers
     ExportFeatures.UsesSkuAsMpnFallback |
     ExportFeatures.OffersBrandFallback |
     ExportFeatures.UsesSpecialPrice |
-    ExportFeatures.UsesAttributeCombination)]
-    public class OrderFullExportProvider : ExportProviderBase
+    ExportFeatures.UsesAttributeCombination |
+    ExportFeatures.CanOmitCompletionMail)]
+    public class OrderFullCsvProvider : ExportProviderBase
     {
         public override ExportEntityType EntityType
         {
@@ -51,26 +56,27 @@ namespace Strube.Export.Providers
         protected override void Export(ExportExecuteContext context)
         {
             dynamic currency = context.Currency;
-            string _FormatString = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9};{10};{11};{12};{13}";
+            //string _FormatString = "{0};{1};{2};{3};{4};{5};{6};{7};{8};{9};{10};{11};{12};{13}";
 
             //Create Streamwriter
             StreamWriter _sw = new StreamWriter(context.DataStream);
             //Add Header Line
-            _sw.WriteLine(String.Format(_FormatString, 
-                "ID", 
-                "OrderId", 
-                "Comment",
-                "Company",
-                "Name",
-                "Surname",
-                "Address1",
-                "Address2",
-                "Zip-Code",
-                "City",
-                "Country",
-                "ItemId",
-                "Description",
-                "Count"));
+            //_sw.WriteLine(String.Format(_FormatString, 
+            //    "ID", 
+            //    "OrderId", 
+            //    "Comment",
+            //    "Company",
+            //    "Name",
+            //    "Surname",
+            //    "Address1",
+            //    "Address2",
+            //    "Zip-Code",
+            //    "City",
+            //    "Country",
+            //    "ItemId",
+            //    "Description",
+            //    "Count"));
+            _sw.WriteLine(new OrderDetail().GetCSVHeader());
             // export the lines
             while (context.Abort==DataExchangeAbortion.None && context.DataSegmenter.ReadNextSegment())
             {
@@ -89,23 +95,25 @@ namespace Strube.Export.Providers
                     {
                         foreach (OrderItem item in orderItem)
                         {
-                            Product itemProduct = item.Product;
-                            _sw.WriteLine(String.Format(_FormatString,
-                                orderEntity.OrderGuid,
-                                orderEntity.GetOrderNumber(),
-                                orderEntity.CustomerOrderComment,
-                                orderEntity.ShippingAddress.Company,
-                                orderEntity.ShippingAddress.LastName,
-                                orderEntity.ShippingAddress.FirstName,
-                                orderEntity.ShippingAddress.Address1,
-                                orderEntity.ShippingAddress.Address2,
-                                orderEntity.ShippingAddress.ZipPostalCode,
-                                orderEntity.ShippingAddress.City,
-                                orderEntity.ShippingAddress.Country.Name,
-                                itemProduct.Sku,
-                                itemProduct.Name,
-                                item.Quantity
-                                )) ;
+                            OrderDetail orderDetail = new OrderDetail(item);
+                            _sw.WriteLine(orderDetail.GetCSVLine());
+                            //Product itemProduct = item.Product;
+                            //_sw.WriteLine(String.Format(_FormatString,
+                            //    orderEntity.OrderGuid,
+                            //    orderEntity.GetOrderNumber(),
+                            //    orderEntity.CustomerOrderComment,
+                            //    orderEntity.ShippingAddress.Company,
+                            //    orderEntity.ShippingAddress.LastName,
+                            //    orderEntity.ShippingAddress.FirstName,
+                            //    orderEntity.ShippingAddress.Address1,
+                            //    orderEntity.ShippingAddress.Address2,
+                            //    orderEntity.ShippingAddress.ZipPostalCode,
+                            //    orderEntity.ShippingAddress.City,
+                            //    orderEntity.ShippingAddress.Country.Name,
+                            //    itemProduct.Sku,
+                            //    itemProduct.Name,
+                            //    item.Quantity
+                            //    )) ;
 
                             ++context.RecordsSucceeded;
 
