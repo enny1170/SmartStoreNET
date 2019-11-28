@@ -37,11 +37,23 @@ namespace Strube.Export.Models
         [FieldOrder(12)]
         public string Description { get; set; }
         [FieldOrder(13)]
-        public int Count { get; set; }
+        public string SKU { get; set; }
         [FieldOrder(14)]
-        public string TrackingId { get; set; }
+        public string Gtin { get; set; }
         [FieldOrder(15)]
+        public int Count { get; set; }
+        [FieldOrder(16)]
+        public string TrackingId { get; set; }
+        [FieldOrder(17)]
         public DateTime? ShipDateTime { get; set; }
+        [FieldOrder(18)]
+        public string PaymentType { get; set; }
+        [FieldOrder(19)]
+        public string DirectDebitAccountHolder { get; set; }
+        [FieldOrder(20)]
+        public string DirectDebitIBAN { get; set; }
+        [FieldOrder(21)]
+        public string DirectDebitBIC { get; set; }
 
         public OrderDetail()
         {
@@ -61,11 +73,17 @@ namespace Strube.Export.Models
             this.ZipCode = orderItem.Order.ShippingAddress.ZipPostalCode;
             this.City = orderItem.Order.ShippingAddress.City;
             this.Country = orderItem.Order.ShippingAddress.Country.Name;
-            this.ItemId = orderItem.Product.Sku;
+            this.ItemId = orderItem.Product.ManufacturerPartNumber;
+            this.SKU = orderItem.Product.Sku;
+            this.Gtin = orderItem.Product.Gtin;
             this.Description = orderItem.Product.Name;
             this.Count = orderItem.Quantity;
             this.TrackingId = "";
             this.ShipDateTime = null;
+            this.PaymentType = orderItem.Order.PaymentMethodSystemName;
+            this.DirectDebitAccountHolder = orderItem.Order.DirectDebitAccountHolder;
+            this.DirectDebitBIC = orderItem.Order.DirectDebitBIC;
+            this.DirectDebitIBAN = orderItem.Order.DirectDebitIban;
         }
 
         /// <summary>
