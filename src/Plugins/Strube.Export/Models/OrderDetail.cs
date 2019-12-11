@@ -1,4 +1,9 @@
 ﻿using SmartStore.Core.Domain.Orders;
+using SmartStore.Core.Domain.Security;
+using SmartStore.Services;
+using SmartStore.Services.Common;
+using SmartStore.Services.Configuration;
+using SmartStore.Services.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,13 +59,17 @@ namespace Strube.Export.Models
         public string DirectDebitIBAN { get; set; }
         [FieldOrder(21)]
         public string DirectDebitBIC { get; set; }
+        [FieldOrder(22)]
+        public string CustomerEmail { get; set; }
+        [FieldOrder(23)]
+        public decimal OrderAmount { get; set; }
 
         public OrderDetail()
         {
 
         }
 
-        public OrderDetail(OrderItem orderItem)
+        public OrderDetail(OrderItem orderItem, IEncryptionService encryptionService=null,string encryptionKey="")
         {
             this.Id = orderItem.Order.OrderGuid.ToString();
             this.OrderId = orderItem.Order.GetOrderNumber();
@@ -73,6 +82,8 @@ namespace Strube.Export.Models
             this.ZipCode = orderItem.Order.ShippingAddress.ZipPostalCode;
             this.City = orderItem.Order.ShippingAddress.City;
             this.Country = orderItem.Order.ShippingAddress.Country.Name;
+            this.CustomerEmail = orderItem.Order.Customer.Email;
+            this.OrderAmount = orderItem.Order.OrderTotal;
             this.ItemId = orderItem.Product.ManufacturerPartNumber;
             this.SKU = orderItem.Product.Sku;
             this.Gtin = orderItem.Product.Gtin;
@@ -81,9 +92,19 @@ namespace Strube.Export.Models
             this.TrackingId = "";
             this.ShipDateTime = null;
             this.PaymentType = orderItem.Order.PaymentMethodSystemName;
-            this.DirectDebitAccountHolder = orderItem.Order.DirectDebitAccountHolder;
-            this.DirectDebitBIC = orderItem.Order.DirectDebitBIC;
-            this.DirectDebitIBAN = orderItem.Order.DirectDebitIban;
+            // some fields ar encrypted. Try to decrypt only if Service available
+            if(encryptionService!=null)
+            {
+                this.DirectDebitAccountHolder = encryptionService.DecryptText(orderItem.Order.DirectDebitAccountHolder, encryptionKey);
+                this.DirectDebitBIC = encryptionService.DecryptText(orderItem.Order.DirectDebitBIC,encryptionKey);
+                this.DirectDebitIBAN = encryptionService.DecryptText(orderItem.Order.DirectDebitIban,encryptionKey);
+            }
+            else
+            {
+                this.DirectDebitAccountHolder = orderItem.Order.DirectDebitAccountHolder;
+                this.DirectDebitBIC = orderItem.Order.DirectDebitBIC;
+                this.DirectDebitIBAN = orderItem.Order.DirectDebitIban;
+            }
         }
 
         /// <summary>

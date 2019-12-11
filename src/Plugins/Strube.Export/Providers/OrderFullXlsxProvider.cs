@@ -14,10 +14,13 @@ using SmartStore.Services.Catalog;
 using SmartStore.Services.DataExchange.Export;
 using SmartStore.Services.Directory;
 using SmartStore.Services.Localization;
+using SmartStore.Services.Configuration;
+using SmartStore.Services.Security;
 using System.IO;
 using SmartStore.Core.Domain.Orders;
 using OfficeOpenXml;
 using Strube.Export.Models;
+using SmartStore.Core.Domain.Security;
 
 namespace Strube.Export.Providers
 {
@@ -39,6 +42,18 @@ namespace Strube.Export.Providers
     ExportFeatures.CanOmitCompletionMail)]
     public class OrderFullXlsxProvider: ExportProviderBase
     {
+        private readonly IEncryptionService _encryptionService;
+        private readonly ISettingService _settingService;
+        private readonly string _encryptionKey;
+
+        public OrderFullXlsxProvider(IEncryptionService encryptionService, ISettingService settingService)
+        {
+            _encryptionService = encryptionService;
+            _settingService = settingService;
+            var securitySettings = _settingService.LoadSetting<SecuritySettings>();
+            _encryptionKey = securitySettings.EncryptionKey;
+        }
+
         public override ExportEntityType EntityType
         {
             get { return ExportEntityType.Order; }
@@ -76,7 +91,7 @@ namespace Strube.Export.Providers
                     {
                         foreach (OrderItem item in orderItem)
                         {
-                            OrderDetail tmp = new OrderDetail(item);
+                            OrderDetail tmp = new OrderDetail(item,_encryptionService,_encryptionKey);
                             orderDetails.Add(tmp);
                             ++context.RecordsSucceeded;
                         }
