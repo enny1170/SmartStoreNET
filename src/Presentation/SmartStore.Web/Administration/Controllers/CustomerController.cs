@@ -259,7 +259,7 @@ namespace SmartStore.Admin.Controllers
             model.VatNumberStatusNote = ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnum(Services.Localization, Services.WorkContext);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
             model.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
-            model.LastIpAddress = model.LastIpAddress;
+            model.LastIpAddress = customer.LastIpAddress;
             model.LastVisitedPage = customer.GetAttribute<string>(SystemCustomerAttributeNames.LastVisitedPage);
 
             foreach (var tzi in Services.DateTimeHelper.GetSystemTimeZones())
@@ -496,7 +496,7 @@ namespace SmartStore.Admin.Controllers
                     var numberExists = _customerService.SearchCustomers(new CustomerSearchQuery { CustomerNumber = model.CustomerNumber }).SourceQuery.Any();
                     if (numberExists)
                     {
-                        NotifyError("Common.CustomerNumberAlreadyExists");
+                        NotifyError(T("Common.CustomerNumberAlreadyExists"));
                     }
                     else
                     {
@@ -680,7 +680,7 @@ namespace SmartStore.Admin.Controllers
                         var numberExists = _customerService.SearchCustomers(new CustomerSearchQuery { CustomerNumber = model.CustomerNumber }).SourceQuery.Any();
                         if (model.CustomerNumber != customer.CustomerNumber && numberExists)
                         {
-                            NotifyError("Common.CustomerNumberAlreadyExists");
+                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
                         }
                         else
                         {
@@ -1403,6 +1403,7 @@ namespace SmartStore.Admin.Controllers
         /// Evaluates and displays customer registrations of this year as line chart
         /// </summary>
         /// <returns>Customers registrations chart</returns>
+        [Permission(Permissions.Customer.Read, false)]
         public ActionResult RegisteredCustomersDashboardReport()
         {
             // Get customers of at least last 28 days (if year is younger)

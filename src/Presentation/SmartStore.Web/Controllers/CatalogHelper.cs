@@ -1148,10 +1148,9 @@ namespace SmartStore.Web.Controllers
 
             if (!product.IsShipEnabled || (addShippingPrice == 0 && product.IsFreeShipping))
             {
-                model.LegalInfo += "{0} {1}, {2}".FormatInvariant(
-                    product.IsTaxExempt ? "" : taxInfo,
-                    product.IsTaxExempt ? "" : defaultTaxRate,
-                    T("Common.FreeShipping"));
+                model.LegalInfo += product.IsTaxExempt
+                    ? T("Common.FreeShipping")
+                    : "{0} {1}, {2}".FormatInvariant(taxInfo, defaultTaxRate, T("Common.FreeShipping"));
             }
             else
             {
@@ -1174,6 +1173,8 @@ namespace SmartStore.Web.Controllers
                 }
             }
 
+            model.LegalInfo = model.LegalInfo.TrimSafe();
+
             var dimension = _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId)?.SystemKeyword ?? string.Empty;
 
             model.WeightValue = product.Weight;
@@ -1192,10 +1193,10 @@ namespace SmartStore.Web.Controllers
                 }
             }
 
-            model.Weight = (model.WeightValue > 0) ? "{0} {1}".FormatCurrent(model.WeightValue.ToString("N2"), _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId).SystemKeyword) : "";
-            model.Height = (product.Height > 0) ? "{0} {1}".FormatCurrent(product.Height.ToString("N2"), dimension) : "";
-            model.Length = (product.Length > 0) ? "{0} {1}".FormatCurrent(product.Length.ToString("N2"), dimension) : "";
-            model.Width = (product.Width > 0) ? "{0} {1}".FormatCurrent(product.Width.ToString("N2"), dimension) : "";
+            model.Weight = (model.WeightValue > 0) ? "{0} {1}".FormatCurrent(model.WeightValue.ToString("G29"), _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId).SystemKeyword) : "";
+            model.Height = (product.Height > 0) ? "{0} {1}".FormatCurrent(product.Height.ToString("G29"), dimension) : "";
+            model.Length = (product.Length > 0) ? "{0} {1}".FormatCurrent(product.Length.ToString("G29"), dimension) : "";
+            model.Width = (product.Width > 0) ? "{0} {1}".FormatCurrent(product.Width.ToString("G29"), dimension) : "";
 
             if (productBundleItem != null)
             {

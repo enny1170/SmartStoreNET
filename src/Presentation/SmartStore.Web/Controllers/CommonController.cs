@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using System.Xml.Linq;
@@ -137,14 +138,29 @@ namespace SmartStore.Web.Controllers
             {
                 var result = _languageService.Value
                     .GetAllLanguages(storeId: Services.StoreContext.CurrentStore.Id)
-                    .Select(x => new LanguageModel
+                    .Select(x => 
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        NativeName = LocalizationHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.Name,
-                        ISOCode = x.LanguageCulture,
-                        SeoCode = x.UniqueSeoCode,
-                        FlagImageFileName = x.FlagImageFileName
+                        LocalizationHelper.TryGetCultureInfoForLocale(x.LanguageCulture, out var culture);
+                        LocalizationHelper.TryGetCultureInfoForLocale(x.GetTwoLetterISOLanguageName(), out var neutralCulture);
+
+                        neutralCulture ??= culture?.Parent ?? culture;
+
+                        var nativeName = culture?.NativeName ?? x.Name;
+                        var shortNativeName = neutralCulture?.NativeName ?? x.Name;
+
+                        var model = new LanguageModel
+                        {
+                            Id = x.Id,
+                            ISOCode = x.LanguageCulture,
+                            SeoCode = x.UniqueSeoCode,
+                            FlagImageFileName = x.FlagImageFileName,
+                            Name = LocalizationHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: false, culture: culture),
+                            ShortName = LocalizationHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: true, culture: culture),
+                            NativeName = LocalizationHelper.NormalizeLanguageDisplayName(nativeName, stripRegion: false, culture: culture),
+                            ShortNativeName = LocalizationHelper.NormalizeLanguageDisplayName(shortNativeName, stripRegion: true, culture: culture)
+                        };
+
+                        return model;
                     })
                     .ToList();
                 return result;
@@ -156,7 +172,8 @@ namespace SmartStore.Web.Controllers
             {
                 CurrentLanguageId = workingLanguage.Id,
                 AvailableLanguages = availableLanguages,
-                UseImages = _localizationSettings.UseImagesForLanguageSelection
+                UseImages = _localizationSettings.UseImagesForLanguageSelection,
+                DisplayLongName = _localizationSettings.DisplayRegionInLanguageSelector
             };
 
             string defaultSeoCode = _languageService.Value.GetDefaultLanguageSeoCode();

@@ -40,12 +40,6 @@
         {
             context.MigrateLocaleResources(MigrateLocaleResources);
             MigrateSettings(context);
-
-            if (DataSettings.DatabaseIsInstalled())
-            {
-                var logTypeMigrator = new ActivityLogTypeMigrator(context);
-                logTypeMigrator.AddActivityLogType("EditOrder", "Edit an order", "Auftrag bearbeitet");
-            }
         }
 
         public void MigrateSettings(SmartObjectContext context)
@@ -55,9 +49,11 @@
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Error",
-                "The Twitter username must begin with an '@'.",
-                "Der Twitter-Benutzername muss mit einem '@' beginnen.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector",
+                "Display region in language selector",
+                "Region in der Sprachauswahl anzeigen",
+                "Whether to display region/country name in language selector (e.g. 'Deutsch (Deutschland)' instead of 'Deutsch')",
+                "Zeigt den Namen der Region/des Landes in der Sprachauswahl an (z. B. 'Deutsch (Deutschland)' statt 'Deutsch')");        
         }
     }
 }

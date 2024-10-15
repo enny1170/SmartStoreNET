@@ -203,6 +203,9 @@ $(function () {
                     var type = el.data("type");
                     ShopBar.loadSummary(type, true);
                     el.closest('.tab-pane').find('.sub-total').html(data.SubTotal);
+                    if (data.newItemPrice != "") {
+                        el.closest(".offcanvas-cart-item").find(".unit-price").html(data.newItemPrice);
+                    }
                 }
                 else {
                     $(data.message).each(function (index, value) {
@@ -393,6 +396,11 @@ var ShopBar = (function ($) {
                     cnt.find('.offcanvas-cart-footer').remove();
                     cnt.find('.offcanvas-cart-external-checkout').remove();
                     cnt.prepend(data);
+
+                    // INFO: Hack to force redrawing for edge on androids. Else the body element shifts over the whole page and nothing can be seen or clicked anymore.
+                    if (Modernizr.touchevents && /Edg/.test(navigator.userAgent)) {
+                        $('#footer').toggleClass('force-redraw');
+                    }
                 },
                 complete: function (jqXHR, textStatus) {
                     tool.removeClass("loading").addClass("loaded");

@@ -22,7 +22,7 @@ namespace SmartStore.Core.Domain.Localization
         public bool UseImagesForLanguageSelection { get; set; }
 
         /// <summary>
-        /// A value indicating whether the browser user lannguage should be detected
+        /// A value indicating whether the browser user language should be detected
         /// </summary>
         public bool DetectBrowserUserLanguage { get; set; }
 
@@ -42,6 +42,11 @@ namespace SmartStore.Core.Domain.Localization
         /// </summary>
         /// <remarks>This setting is ignored when <c>SeoFriendlyUrlsForLanguagesEnabled</c> is <c>false</c></remarks>
         public InvalidLanguageRedirectBehaviour InvalidLanguageRedirectBehaviour { get; set; }
+
+        /// <summary>
+        /// Whether to display region/country name in language selector (e.g. "Deutsch (Deutschland)" instead of "Deutsch")
+        /// </summary>
+        public bool DisplayRegionInLanguageSelector { get; set; }
     }
 
     public enum DefaultLanguageRedirectBehaviour
