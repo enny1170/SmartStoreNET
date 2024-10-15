@@ -2,8 +2,8 @@
 Description: Provides Export Formats for Strube Companies
 SystemName: Strube.Export
 Group: Developer
-Version: 4.1.1
-MinAppVersion: 4.1.1
+Version: 4.2.0
+MinAppVersion: 4.2.0
 Author: Strube DuS GmbH
 DisplayOrder: 1
 FileName: Strube.Export.dll
